@@ -1,0 +1,91 @@
+{
+  "excluded_video": "bulbasaur_costas_video",
+  "validation_videos": {
+    "bulbasaur": [
+      "bulbasaur_cima_video"
+    ],
+    "charmander": [
+      "charmander_costas"
+    ],
+    "fundo": [
+      "fundo3"
+    ],
+    "squirtle": [
+      "squirtle_costas"
+    ]
+  },
+  "phase1_val_accuracy": [
+    0.9082568883895874,
+    0.9724770784378052,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "phase1_val_loss": [
+    0.1668993979692459,
+    0.09430686384439468,
+    0.05761725828051567,
+    0.06598484516143799,
+    0.040951646864414215,
+    0.055532436817884445,
+    0.049799833446741104,
+    0.034164417535066605
+  ],
+  "finetune_val_accuracy": [
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0,
+    1.0
+  ],
+  "finetune_val_loss": [
+    0.018225710839033127,
+    0.013949657790362835,
+    0.022643042728304863,
+    0.006979960948228836,
+    0.019051015377044678,
+    0.007771390490233898,
+    0.006737271789461374,
+    0.008068161085247993
+  ],
+  "final_accuracy": 1.0,
+  "confusion": [
+    [
+      26,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      8,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      64,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      11
+    ]
+  ],
+  "report": "              precision    recall  f1-score   support\n\n   bulbasaur       1.00      1.00      1.00        26\n  charmander       1.00      1.00      1.00         8\n       fundo       1.00      1.00      1.00        64\n    squirtle       1.00      1.00      1.00        11\n\n    accuracy                           1.00       109\n   macro avg       1.00      1.00      1.00       109\nweighted avg       1.00      1.00      1.00       109\n",
+  "class_names": [
+    "bulbasaur",
+    "charmander",
+    "fundo",
+    "squirtle"
+  ]
+}

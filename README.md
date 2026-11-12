@@ -1,51 +1,49 @@
 # Reconhecimento de Pokémon em vídeo
 
-Projeto preparado a partir dos requisitos da atividade. As classes escolhidas são `bulbasaur`, `charmander`, `squirtle` e `fundo`; os nomes das pastas definem as classes.
+Projeto preparado a partir dos requisitos da atividade. As classes são `bulbasaur`, `charmander`, `squirtle` e `fundo`; os nomes das pastas definem as classes.
 
-## 1. Gravar os dados
+## Gravar e organizar os dados
 
-Crie pelo menos quatro vídeos diferentes para cada Pokémon e quatro para `fundo`. Grave cada classe em cenários claros e escuros, misturando frente, costas, os dois lados, cima, baixo, perto e longe em cada vídeo. O conjunto de teste (30 a 60 segundos) deve ser uma gravação nova, em outro local. Evite que cada Pokémon apareça sempre com um cenário próprio.
-
-Organize os arquivos assim:
+O conjunto contém vídeos por Pokémon, incluindo frente, costas, cima, baixo e aproximações, além de gravações da classe `fundo`. Os vídeos e os frames extraídos ficam em `videos/` e `data/`.
 
 ```text
 videos/
-  bulbasaur/  v01_claro.mp4 ...
+  bulbasaur/
   charmander/
   squirtle/
   fundo/
 ```
 
-## 2. Instalar e executar
+Ao acrescentar gravações, rode a extração e o treino novamente.
 
-Com Python 3.12, crie um ambiente virtual e instale as dependências:
+## Instalar e executar
 
-```bash
-python -m venv .venv
-```
-
-No Windows, instale e execute os scripts assim:
+Com Python 3.12:
 
 ```powershell
+python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe extrair_frames.py
 .\.venv\Scripts\python.exe train.py
 .\.venv\Scripts\python.exe detectar.py teste_novo.mp4
 ```
 
-No Linux ou macOS, use o Python do ambiente virtual (`.venv/bin/python`) nos mesmos comandos.
+O treino salva `modelo.keras`, `class_names.json`, `curvas.png` e `dataset_imagens.pdf`. A detecção salva um vídeo anotado e imprime a linha do tempo.
 
-O repositório inclui as gravações em `videos/`, os frames já extraídos em `data/` e o modelo treinado. Se adicionar novas gravações, rode novamente `extrair_frames.py` e `train.py`.
+## Como o modelo funciona
 
-O treino salva `modelo.keras`, `class_names.json`, `curvas.png` e `dataset_imagens.pdf`; a detecção salva `saida_teste_novo.mp4` e imprime a linha do tempo.
-
-## 3. Melhorias da atividade
-
-- `detectar.py` calcula a média de probabilidade dos últimos oito frames e exibe `?` se a confiança média for menor que 60%. Os valores ficam no início do arquivo para experimentação.
+- `detectar.py` calcula a média das probabilidades dos últimos oito frames e mostra `?` quando a confiança média fica abaixo de 60%.
 - A linha do tempo agrupa rótulos consecutivos, removendo fundo, desconhecidos e trechos menores que meio segundo.
-- `train.py` treina primeiro a cabeça com a MobileNetV2 congelada, depois libera até 30 camadas finais com taxa `1e-5`. O gráfico marca o início dessa fase.
-- A validação separa vídeos inteiros, nunca frames aleatórios do mesmo vídeo.
+- `train.py` treina a cabeça com a MobileNetV2 congelada e depois libera até 30 camadas finais com taxa de aprendizado `1e-5`.
+- A validação separa vídeos inteiros, evitando misturar frames do mesmo vídeo entre treino e validação.
 
-## 4. Entrega e experimentos
+## Experimentos e entrega
 
-Os vídeos anotados, o PDF do dataset, as curvas e o relatório inicial das cinco perguntas estão incluídos. O relatório registra os experimentos de split e fine-tuning já feitos e identifica os testes ainda pendentes: costas, um quarto Pokémon isolado e dois Pokémon simultâneos. Para fechar a entrega, guarde também o print da linha do tempo do vídeo de teste e atualize o relatório com os resultados desses testes.
+O relatório em `output/pdf/relatorio_respostas_pokemon.pdf` responde às cinco perguntas da atividade com os experimentos e os limites observados. O teste de costas excluiu os frames de `bulbasaur_costas_video` do treino experimental; o modelo reconheceu Bulbasaur nesse clipe. O vídeo do Venusaur, que não estava entre as classes treinadas, foi classificado como Bulbasaur com confiança acima do limiar, ilustrando a limitação do softmax e da rejeição por confiança.
+
+- `experimentos/q3_bulbasaur_sem_costas/`: modelo experimental, classes e resultados numéricos.
+- `experimentos/q4_venusaur/venusaur.mp4`: vídeo de Pokémon desconhecido usado no teste.
+- `saida_bulbasaur_costas_video.mp4` e `saida_venusaur.mp4`: vídeos anotados dos testes.
+- `saida_teste-pokemons.mp4`: demonstração com vários Pokémon visíveis; o classificador retorna um rótulo por quadro, não caixas individuais.
+
+As métricas são válidas para os vídeos usados e não garantem o mesmo resultado em qualquer gravação.

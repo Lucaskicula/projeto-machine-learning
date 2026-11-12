@@ -21,7 +21,9 @@ LIMIAR_CONFIANCA = 0.60
 # Melhoria 2: trechos menores que meio segundo não entram na linha do tempo.
 DURACAO_MINIMA = 0.5
 
-model = tf.keras.models.load_model("modelo.keras")
+# MODELO_PATH permite testar uma cópia experimental sem substituir o modelo principal.
+model_path = os.environ.get("MODELO_PATH", "modelo.keras")
+model = tf.keras.models.load_model(model_path)
 with open("class_names.json", encoding="utf-8") as f:
     class_names = json.load(f)
 fonte = sys.argv[1] if len(sys.argv) > 1 else "0"
