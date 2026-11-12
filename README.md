@@ -48,4 +48,4 @@ O treino salva `modelo.keras`, `class_names.json`, `curvas.png` e `dataset_image
 
 ## 4. Entrega e experimentos
 
-O vídeo anotado `saida_testee.mp4`, o PDF do dataset e as curvas geradas estão incluídos como resultados desta execução. Ainda faltam o print da linha do tempo e o relatório com as cinco respostas da Parte 5. Para responder às comparações, rode as variações pedidas (split por foto, learning rate `1e-3`, ângulo omitido, quarto Pokémon e dois objetos no quadro) e registre os resultados observados.
+Os vídeos anotados, o PDF do dataset, as curvas e o relatório inicial das cinco perguntas estão incluídos. O relatório registra os experimentos de split e fine-tuning já feitos e identifica os testes ainda pendentes: costas, um quarto Pokémon isolado e dois Pokémon simultâneos. Para fechar a entrega, guarde também o print da linha do tempo do vídeo de teste e atualize o relatório com os resultados desses testes.
