@@ -18,6 +18,7 @@ EPOCHS_CABeca = 8
 EPOCHS_FINE = 8
 VAL_FRACTION = 0.2
 SEED = 42
+# Melhoria 3: na segunda fase, libera somente as 30 camadas finais da base.
 FINE_TUNE_CAMADAS = 30
 random.seed(SEED)
 np.random.seed(SEED)
@@ -76,6 +77,8 @@ augment = tf.keras.Sequential([
 ])
 base = tf.keras.applications.MobileNetV2(
     input_shape=(IMG_SIZE, IMG_SIZE, 3), include_top=False, weights="imagenet")
+# Primeiro congelamos toda a MobileNetV2: na fase inicial só a nova camada
+# Dense (a "cabeça" que escolhe entre as classes) aprende com nossos vídeos.
 base.trainable = False
 inputs = tf.keras.Input(shape=(IMG_SIZE, IMG_SIZE, 3))
 x = augment(inputs)
@@ -88,20 +91,26 @@ model = tf.keras.Model(inputs, outputs)
 stop = tf.keras.callbacks.EarlyStopping(monitor="val_loss", patience=3,
                                         restore_best_weights=True)
 
-# Fase 1: aprende a cabeça de classificação com a MobileNetV2 congelada.
+# Melhoria 3 - fase 1 do fine-tuning: treina a cabeça classificadora enquanto
+# mantém os filtros pré-treinados da MobileNetV2 congelados. A taxa 1e-3 é maior
+# porque a cabeça começa com pesos novos.
 model.compile(optimizer=tf.keras.optimizers.Adam(1e-3),
               loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 hist1 = model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS_CABeca,
                   callbacks=[stop])
 
-# Fase 2: libera as últimas camadas e reduz muito a taxa de aprendizado.
+# Melhoria 3 - fase 2: descongela a base e mantém treináveis apenas as últimas
+# camadas. Elas se ajustam às imagens dos Pokémon sem alterar toda a rede.
 base.trainable = True
 for layer in base.layers[:-FINE_TUNE_CAMADAS]:
     layer.trainable = False
-# BatchNormalization permanece congelada para estabilizar o fine-tuning.
+# BatchNormalization permanece congelada para preservar suas estatísticas e
+# deixar o fine-tuning estável, especialmente com um conjunto pequeno de vídeos.
 for layer in base.layers:
     if isinstance(layer, tf.keras.layers.BatchNormalization):
         layer.trainable = False
+# Depois de mudar quais camadas treinam, recompilamos obrigatoriamente o modelo.
+# A taxa 1e-5 é baixa para ajustar os filtros pré-treinados gradualmente.
 model.compile(optimizer=tf.keras.optimizers.Adam(1e-5),
               loss="sparse_categorical_crossentropy", metrics=["accuracy"])
 hist2 = model.fit(train_ds, validation_data=val_ds, epochs=EPOCHS_FINE,
@@ -110,6 +119,8 @@ model.save("modelo.keras")
 with open("class_names.json", "w", encoding="utf-8") as f:
     json.dump(class_names, f, ensure_ascii=False, indent=2)
 
+# Combina as épocas das duas fases. A linha vertical no gráfico indica o ponto
+# em que terminou o treino da cabeça e começou o fine-tuning da base.
 split = len(hist1.history["loss"])
 fig, axes = plt.subplots(1, 2, figsize=(11, 4))
 for ax, metric, title in zip(axes, ("accuracy", "loss"), ("Acurácia", "Loss")):

@@ -13,8 +13,12 @@ import tensorflow as tf
 from utils import letterbox
 
 CLASSE_VAZIA = "fundo"
+# Melhoria 1: suavização + rejeição por confiança.
+# A janela contém os últimos oito vetores de probabilidade, um por frame.
+# Se quiser experimentar, altere JANELA ou LIMIAR_CONFIANCA (60%).
 JANELA = 8
 LIMIAR_CONFIANCA = 0.60
+# Melhoria 2: trechos menores que meio segundo não entram na linha do tempo.
 DURACAO_MINIMA = 0.5
 
 model = tf.keras.models.load_model("modelo.keras")
@@ -33,7 +37,9 @@ if not webcam:
     saida = f"saida_{os.path.splitext(os.path.basename(fonte))[0]}.mp4"
     writer = cv2.VideoWriter(saida, cv2.VideoWriter_fourcc(*"mp4v"), fps, (w, h))
 
-# A média reduz oscilações; abaixo do limiar exibimos '?' como classe desconhecida.
+# Melhoria 1 - suavização e limiar:
+# `deque(maxlen=JANELA)` guarda apenas os resultados mais recentes. A média
+# reduz trocas bruscas causadas por um frame borrado ou por uma pose incomum.
 historico = deque(maxlen=JANELA)
 rotulos = []
 n = 0
@@ -46,8 +52,10 @@ while True:
     rgb = cv2.cvtColor(letterbox(frame), cv2.COLOR_BGR2RGB).astype("float32")
     probs = model.predict(rgb[None], verbose=0)[0]
     historico.append(probs)
+    # Faz a média classe a classe dos últimos N frames (no início, usa os que já existem).
     media = np.mean(historico, axis=0)
     idx = int(np.argmax(media))
+    # Se nenhuma classe conhecida passar de 60%, não força um palpite: mostra '?'.
     rotulo = class_names[idx] if media[idx] >= LIMIAR_CONFIANCA else "?"
     rotulos.append(rotulo)
 
@@ -77,7 +85,9 @@ if writer is not None:
     print(f"Vídeo anotado salvo em: {saida}")
 cv2.destroyAllWindows()
 
-# Agrupa rótulos consecutivos e ignora fundo, desconhecidos e trechos curtos.
+# Melhoria 2 - linha do tempo:
+# Agrupa frames consecutivos que receberam o mesmo rótulo. O índice inicial e
+# final são convertidos em segundos usando o FPS do vídeo.
 trechos = []
 if rotulos:
     inicio, atual = 0, rotulos[0]
@@ -87,6 +97,8 @@ if rotulos:
             inicio, atual = i, label
     trechos.append((inicio, len(rotulos), atual))
 
+# A entrega pede apenas aparições de Pokémon. Removemos fundo, '?' e trechos
+# muito curtos, que podem ser oscilações momentâneas do classificador.
 visiveis = [(a / fps, b / fps, label) for a, b, label in trechos
             if label not in ("?", CLASSE_VAZIA) and (b - a) / fps >= DURACAO_MINIMA]
 encontrados = sorted({label for _, _, label in visiveis})
