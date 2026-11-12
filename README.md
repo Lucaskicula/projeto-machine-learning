@@ -47,3 +47,5 @@ O relatório em `output/pdf/relatorio_respostas_pokemon.pdf` responde às cinco 
 - `saida_teste-pokemons.mp4`: demonstração com vários Pokémon visíveis; o classificador retorna um rótulo por quadro, não caixas individuais.
 
 As métricas são válidas para os vídeos usados e não garantem o mesmo resultado em qualquer gravação.
+
+- matriz-de-confusao.png: print do terminal com a matriz de confusão, precisão, recall e acurácia da validação (94 imagens).
